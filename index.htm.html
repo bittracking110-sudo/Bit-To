@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>詐欺・投資被害リスク無料診断</title>
+<meta name="description" content="仮想通貨・電子マネー・銀行振り込みなどの投資詐欺被害リスクを無料で診断。現在の状況に合わせた対応方法をご案内します。">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif;background:#f7f8fa;color:#1a1a1a;min-height:100vh;padding:2rem 1rem;}
+.wrap{max-width:600px;margin:0 auto;background:#fff;border-radius:16px;padding:2rem 1.5rem;border:1px solid #eee;}
+h1{font-size:20px;font-weight:600;color:#111;margin-bottom:0.5rem;}
+.sub{font-size:14px;color:#666;margin-bottom:1.25rem;line-height:1.6;}
+.progress-wrap{margin-bottom:1.75rem;}
+.progress-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.progress-label{font-size:13px;font-weight:600;color:#111;}
+.progress-remain{font-size:12px;color:#888;}
+.progress-bar{height:8px;background:#eee;border-radius:4px;}
+.progress-fill{height:8px;background:#378ADD;border-radius:4px;transition:width 0.4s ease;}
+.dots{display:flex;gap:6px;margin-top:8px;}
+.dot{width:8px;height:8px;border-radius:50%;background:#ddd;transition:background 0.3s;}
+.dot.done{background:#378ADD;}
+.dot.current{background:#378ADD;outline:2px solid #B5D4F4;outline-offset:1px;}
+.q-title{font-size:16px;font-weight:600;color:#111;margin-bottom:0.25rem;}
+.q-sub{font-size:12px;color:#888;margin-bottom:1rem;}
+.options{display:flex;flex-direction:column;gap:8px;margin-bottom:1.5rem;}
+.opt{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border:1px solid #e5e5e5;border-radius:10px;cursor:pointer;background:#fff;}
+.opt:hover{background:#f5f5f5;}
+.opt.selected{border-color:#378ADD;background:#EEF6FF;}
+.opt input{margin-top:2px;flex-shrink:0;}
+.opt-text{font-size:14px;color:#222;line-height:1.5;}
+.btn{display:block;background:#378ADD;color:#fff;font-size:15px;font-weight:600;padding:14px;border-radius:10px;border:none;cursor:pointer;width:100%;text-align:center;}
+.btn:hover{opacity:0.88;}
+.btn:disabled{opacity:0.35;cursor:not-allowed;}
+.result-card{border-radius:14px;border:1px solid #eee;padding:1.5rem;margin-bottom:1rem;background:#fff;}
+.result-badge{display:inline-block;font-size:12px;font-weight:600;padding:4px 14px;border-radius:8px;margin-bottom:0.75rem;}
+.result-title{font-size:18px;font-weight:600;color:#111;margin-bottom:0.75rem;}
+.result-body{font-size:14px;color:#555;line-height:1.8;}
+.result-links{display:flex;flex-direction:column;gap:8px;margin-top:1rem;}
+.link-item{padding:10px 14px;background:#f7f8fa;border-radius:10px;}
+.link-item a{font-size:13px;color:#185FA5;word-break:break-all;}
+.link-label{font-size:11px;color:#888;margin-bottom:3px;}
+.tel-wrap{margin-top:1rem;padding:14px 16px;background:#f0fdf4;border-radius:10px;}
+.tel-label{font-size:12px;color:#555;margin-bottom:4px;}
+.tel-num{display:inline-block;font-size:20px;font-weight:700;color:#166534;padding:6px 18px;background:#dcfce7;border-radius:8px;margin:6px 0;}
+.tel-note{font-size:12px;color:#555;}
+.line-cta{display:flex;align-items:center;justify-content:center;gap:10px;background:#06C755;color:#fff;font-size:16px;font-weight:600;padding:16px 24px;border-radius:14px;text-decoration:none;margin-top:1.25rem;}
+.line-cta:hover{opacity:0.88;}
+.restart-btn{display:block;background:transparent;color:#888;font-size:13px;padding:12px;border:1px solid #e5e5e5;border-radius:10px;cursor:pointer;width:100%;margin-top:0.75rem;text-align:center;}
+.restart-btn:hover{background:#f5f5f5;}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+const questions=[
+  {id:'q1',title:'怪しいと思うサービスはどこで知りましたか？',sub:'1つ選んでください',multi:false,
+   options:['SNS（Instagram・X・スレッズ・Facebook）','知人・友人の紹介','広告','自分で調べた']},
+  {id:'q2',title:'現在の状況を教えてください',sub:'当てはまるものをすべて選んでください',multi:true,
+   options:['出金しようとしたらできなかった','追加入金を求められた','サービスサイトが突然閉鎖した','利益が出ているが出金したことがない','最初の入金で利益が多少出た','まだLINEのやり取りしかしていない']},
+  {id:'q3',title:'サービスについて当てはまるものを選んでください',sub:'複数選択可',multi:true,
+   options:['運営会社やサイトの所在地が不明','日本語がおかしい・不自然','指示通り操作するとやたら利益が出る','海外拠点の会社','どれも当てはまらない']},
+  {id:'q4',title:'送金について教えてください',sub:'複数ある場合は送金額の多い方を選択',multi:false,
+   options:['仮想通貨送金（Bitbank・Coincheck等）','電子マネー等（BitCash・PayPay等）','銀行振り込み（個人口座）','まだ送金していない']},
+  {id:'q5',title:'担当者について当てはまるものを選んでください',sub:'複数選択可',multi:true,
+   options:['SNSで突然DMが来た','やたらと急かされた','恋愛感情・親密な関係から始まった','有名人・専門家を名乗っていた','特に気になる点はない']},
+  {id:'q6',title:'被害額の目安を教えてください',sub:'1つ選んでください',multi:false,
+   options:['10万円未満','10〜50万円','50〜100万円','100万円以上','まだ送金していない']},
+  {id:'q7',title:'今の状況を教えてください',sub:'複数選択可',multi:true,
+   options:['一人で抱えていて誰にも言えていない','家族や友人には相談した','警察に相談した','複数の業者に相談・契約したが解決していない']}
+];
+let current=0,answers={};
+function getSelected(q){return answers[q.id]||[];}
+function isCryptoSent(){return(answers['q4']||[]).includes('仮想通貨送金（Bitbank・Coincheck等）');}
+function toggleOption(q,val){
+  let sel=getSelected(q);
+  answers[q.id]=q.multi?(sel.includes(val)?sel.filter(v=>v!==val):[...sel,val]):[val];
+  render();
+}
+function calcResult(){
+  const q2=answers['q2']||[],q4=answers['q4']||[],q5=answers['q5']||[],q7=answers['q7']||[];
+  const sc=q4.includes('仮想通貨送金（Bitbank・Coincheck等）');
+  const se=q4.includes('電子マネー等（BitCash・PayPay等）');
+  const sb=q4.includes('銀行振り込み（個人口座）');
+  const ms=q7.includes('複数の業者に相談・契約したが解決していない');
+  const ep=q2.includes('追加入金を求められた');
+  const cl=q2.includes('サービスサイトが突然閉鎖した');
+  const ro=q5.includes('恋愛感情・親密な関係から始まった');
+  const lo=q2.length===1&&q2.includes('まだLINEのやり取りしかしていない');
+  const ns=q5.includes('特に気になる点はない')&&!ep&&!cl&&!ro;
+  if(ms)return'C';
+  if(sc)return'A';
+  if(se||sb)return'B';
+  if(ep||cl||ro)return'RED_NOSEND';
+  if(lo&&q4.includes('まだ送金していない')&&ns)return'GREEN';
+  return'YELLOW';
+}
+const lineBtn='<a class="line-cta" href="https://bittracklp-jhgrtxfk.manus.space" target="_blank">まずは無料相談から【Bit To】</a>';
+const results={
+  'A':{color:'#FCEBEB',textColor:'#A32D2D',badge:'高リスク・要相談',title:'仮想通貨送金の被害が疑われます',body:'詐欺被害の可能性が高い状況です。一人で判断せず、まず無料相談で送金先の追跡調査が可能か確認してください。',links:[],tel:false,showLine:true},
+  'B':{color:'#FCEBEB',textColor:'#A32D2D',badge:'高リスク・要相談',title:'電子マネー・銀行振り込みの被害が疑われます',body:'警察への相談と合わせて、被害状況の整理をお手伝いします。銀行振り込みの場合は口座凍結の手続きを急いでください。電子マネーの場合、被害回復は難しいですがサイト情報の調査をおすすめします。',
+   links:[{label:'銀行振り込み詐欺の相談窓口（警察庁）',url:'https://furikomesagi.dic.go.jp/',text:'振り込め詐欺救済サイト'},{label:'サイト情報を調べる',url:'https://www.aguse.jp/',text:'aguse.jp — URLを入力して調査'},{label:'金融庁 貸金業者検索',url:'https://clearing.fsa.go.jp/kashikin/index.php',text:'登録業者かどうか確認'}],tel:true,showLine:false},
+  'C':{color:'#FCEBEB',textColor:'#A32D2D',badge:'高リスク・二次被害の可能性',title:'二次被害の可能性があります',body:'複数の業者に相談・契約済みの場合、二次被害に遭っている可能性があります。仮想通貨送金が含まれる場合は追跡調査の無料相談をご利用ください。',links:[],tel:false,showLine:true},
+  'RED_NOSEND':{color:'#FCEBEB',textColor:'#A32D2D',badge:'要注意',title:'詐欺の典型的なパターンが見られます',body:'まだ送金していない場合でも、追加入金の要求・サイト閉鎖・恋愛感情を利用した勧誘は詐欺の典型的な手口です。今すぐ送金を止め、サービスの安全性を確認してください。',
+   links:[{label:'サイト情報を調べる',url:'https://www.aguse.jp/',text:'aguse.jp — URLを入力して調査'},{label:'金融庁 貸金業者検索',url:'https://clearing.fsa.go.jp/kashikin/index.php',text:'登録業者かどうか確認'},{label:'ドメイン取得日を確認',url:'https://www.whois.com/',text:'WHOIS検索'}],tel:true,showLine:false},
+  'GREEN':{color:'#EAF3DE',textColor:'#27500A',badge:'低リスク',title:'現時点では詐欺の可能性は低めです',body:'まだ送金前の段階です。ただし、投資前に必ずサービスの安全性を確認してください。以下のツールで事前チェックをおすすめします。',
+   links:[{label:'サイト情報を調べる',url:'https://www.aguse.jp/',text:'aguse.jp — URLを入力して調査'},{label:'金融庁 貸金業者検索',url:'https://clearing.fsa.go.jp/kashikin/index.php',text:'登録業者かどうか確認'},{label:'ドメイン取得日を確認',url:'https://www.whois.com/',text:'WHOIS検索'}],tel:false,showLine:false},
+  'YELLOW':{color:'#FAEEDA',textColor:'#633806',badge:'要注意',title:'いくつか気になる点があります',body:'今すぐ追加送金はせず、まずサービスの安全性を確認することをおすすめします。不安な点があれば無料相談もご利用いただけます。',
+   links:[{label:'サイト情報を調べる',url:'https://www.aguse.jp/',text:'aguse.jp — URLを入力して調査'},{label:'金融庁 貸金業者検索',url:'https://clearing.fsa.go.jp/kashikin/index.php',text:'登録業者かどうか確認'},{label:'ドメイン取得日を確認',url:'https://www.whois.com/',text:'WHOIS検索'}],tel:true,showLine:true}
+};
+function renderResult(){
+  const r=calcResult(),d=results[r],crypto=isCryptoSent();
+  const linksHTML=d.links.map(l=>`<div class="link-item"><div class="link-label">${l.label}</div><a href="${l.url}" target="_blank">${l.text}</a></div>`).join('');
+  const telHTML=d.tel?`<div class="tel-wrap"><div class="tel-label">消費生活センター（無料・全国共通）</div><div class="tel-num">188（いやや）</div><div class="tel-note">土日祝日も相談可能な場合があります</div></div>`:'';
+  document.getElementById('app').innerHTML=`
+    <h1>診断結果</h1>
+    <p class="sub" style="margin-bottom:1.25rem;">以下の内容を参考に、次のアクションを検討してください。</p>
+    <div class="result-card">
+      <div class="result-badge" style="background:${d.color};color:${d.textColor};">${d.badge}</div>
+      <div class="result-title">${d.title}</div>
+      <div class="result-body">${d.body}</div>
+      ${!crypto&&d.links.length?`<div class="result-links">${linksHTML}</div>`:''}
+      ${d.showLine?lineBtn:''}
+      ${!crypto&&d.tel?telHTML:''}
+    </div>
+    <button class="restart-btn" onclick="restart()">最初からやり直す</button>`;
+}
+function restart(){current=0;answers={};render();}
+function render(){
+  const app=document.getElementById('app');
+  if(current>=questions.length){renderResult();return;}
+  const q=questions[current],sel=getSelected(q);
+  const total=questions.length,pct=Math.round((current/total)*100),remaining=total-current;
+  const dotsHTML=questions.map((_,i)=>{
+    let cls='dot';
+    if(i<current)cls+=' done';
+    else if(i===current)cls+=' current';
+    return `<div class="${cls}"></div>`;
+  }).join('');
+  const optsHTML=q.options.map(o=>{
+    const checked=sel.includes(o);
+    return `<div class="opt${checked?' selected':''}" onclick="toggleOption(questions[${current}],'${o.replace(/'/g,"\\'")}')">
+      <input type="${q.multi?'checkbox':'radio'}" ${checked?'checked':''} style="pointer-events:none;">
+      <span class="opt-text">${o}</span>
+    </div>`;
+  }).join('');
+  const isLast=current===total-1;
+  app.innerHTML=`
+    <h1>詐欺・投資被害リスク無料診断</h1>
+    <p class="sub">現在の状況をもとに、リスクレベルと対応方法をお伝えします。</p>
+    <div class="progress-wrap">
+      <div class="progress-header">
+        <span class="progress-label">Q${current+1} / ${total}</span>
+        <span class="progress-remain">残り${remaining}問</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div class="dots">${dotsHTML}</div>
+    </div>
+    <div class="q-title">${q.title}</div>
+    <div class="q-sub">${q.sub}</div>
+    <div class="options">${optsHTML}</div>
+    <button class="btn" onclick="next()" ${sel.length?'':'disabled'}>${isLast?'結果を見る':'次へ'}</button>`;
+}
+function next(){if(!getSelected(questions[current]).length)return;current++;render();}
+window.toggleOption=toggleOption;window.next=next;window.restart=restart;window.questions=questions;
+render();
+</script>
+</body>
+</html>
